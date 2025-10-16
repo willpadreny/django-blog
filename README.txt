@@ -66,6 +66,7 @@ python -m django --version
 - Configure database settings if not using SQLite
 
 ### 6. Run Migrations
+python manage.py makemigrations
 python manage.py migrate
 
 This creates all necessary database tables including user authentication tables.

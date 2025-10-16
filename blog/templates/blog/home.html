@@ -5,6 +5,14 @@
 </head>
 <body>
     <h2>Welcome!</h2>
-    <p>You are now logged in as {{ user.username }}</p>
+    {% if posts %}
+        <u1>
+            {% for post in posts %}
+                <article class="post">
+                    <h2> {{post.title}} </h2>
+                    <h3> {{ post.author.username }} </h3>
+                    <h3> {{ post.content }} </h3>
+            {% endfor %}
+    {% endif %}
 </body>
 </html>
