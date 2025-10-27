@@ -53,6 +53,7 @@ You'll know it's activated when you see (.venv) at the beginning of your termina
 With the virtual environment activated, install Django:
 
 pip install django
+pip install django-simple-captcha
 
 You can verify the installation:
 python -m django --version

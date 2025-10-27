@@ -3,6 +3,8 @@ from django.views.generic import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django import forms
 from .models import Post
+from django.contrib.auth import logout
+from django.shortcuts import redirect
 
 class PostForm(forms.ModelForm):
     class Meta:
@@ -47,3 +49,6 @@ class BlogHomeView(LoginRequiredMixin, ListView):
         context['form'] = form
         return self.render_to_response(context)
 
+def logout_view(request):
+    logout(request)
+    return redirect('/')

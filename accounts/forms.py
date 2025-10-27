@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 import re
+from captcha.fields import CaptchaField
 
 class SignupForm(forms.Form):
 
@@ -8,6 +9,10 @@ class SignupForm(forms.Form):
         widget = forms.TextInput(attrs={'placeholder': 'Username'}), 
         max_length = 100,
         error_messages={'max_length': 'Username cannot exceed 100 characters.'}
+    )
+    
+    email = forms.EmailField(
+        widget = forms.EmailInput(attrs={'placeholder': 'Email'})
     )
     
     password = forms.CharField(
@@ -21,12 +26,20 @@ class SignupForm(forms.Form):
         max_length = 150,
         error_messages={'max_length': 'Password cannot exceed 150 characters.'}
     )
+    
+    captcha = CaptchaField()
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
         if User.objects.filter(username=username).exists():
             raise forms.ValidationError("Username already exists")
         return username
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("Email already exists")
+        return email
     
     def clean_password(self):
         password = self.cleaned_data.get('password')
