@@ -127,3 +127,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/accounts/signin/'
 LOGIN_REDIRECT_URL = '/blog/'
+#ALLOWED_HOSTS = ['192.168.0.115']
+SESSION_COOKIE_HTTPONLY = True

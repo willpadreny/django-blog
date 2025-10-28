@@ -36,6 +36,40 @@
             margin: 0;
         }
 
+        .feed-toggle {
+            background: white;
+            border: 2px solid #333;
+            box-shadow: 4px 4px 0px #333;
+            padding: 15px 30px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .feed-btn {
+            padding: 10px 25px;
+            background: white;
+            color: #333;
+            border: 2px solid #333;
+            font-weight: normal;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Times New Roman';
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .feed-btn:hover {
+            background: #f0f0f0;
+        }
+        
+        .feed-btn.active {
+            background: #333;
+            color: white;
+        }
+
         .new-post-form {
             background: white;
             border: 2px solid #333;
@@ -90,6 +124,12 @@
             transition: all 0.2s;
             font-family: 'Times New Roman';
         }
+        
+        .btn-submit:hover {
+            background: #555;
+            border-color: #555;
+        }
+
         .btn-logout {
             width: 100%;
             padding: 15px 30px;
@@ -105,16 +145,18 @@
             text-decoration: none;
             display: inline-block;
         }
+
+        .btn-logout:hover {
+            background: #555;
+            border-color: #555;
+        }
+
         .user-buttons {
             display: flex;
             gap: 10px;
             align-items: center;
         }
 
-        .btn-submit:hover {
-            background: #555;
-            border-color: #555;
-        }
         
         .blog-post {
             background: white;
@@ -131,6 +173,35 @@
             margin: 0 0 15px 0;
             letter-spacing: 1px;
         }
+     
+        .btn-follow {
+            align-items: center;
+            padding: 2px 8px;
+            background: white;
+            color: #333;
+            border: 2px solid #333;
+            font-weight: normal;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Times New Roman';
+            text-decoration: none;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        
+        .btn-follow:hover {
+            background: #f0f0f0;
+        }
+        
+        .btn-follow.following {
+            background: #333;
+            color: white;
+        }
+        
+        .btn-follow.following:hover {
+            background: #555;
+        }
         
         .post-info {
             color: #555;
@@ -140,7 +211,8 @@
             border-bottom: 1px solid #ddd;
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 10px;
+            align-items: center;
         }
         
         .post-info span {
@@ -157,16 +229,43 @@
             font-size: 16px;
             line-height: 1.8;
         }
+
+        .no-posts {
+            background: white;
+            border: 2px solid #333;
+            box-shadow: 4px 4px 0px #333;
+            padding: 50px;
+            text-align: center;
+        }
+        
+        .no-posts h3 {
+            color: #222;
+            margin-bottom: 10px;
+        }
+        
+        .no-posts p {
+            color: #666;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
     <div class = "head">  <!-- put login button, profile etc here-->
             <h1>Agora</h1>
             <div class = "user-buttons">
-                <a href="{% url 'accounts:logout' %}" class="btn btn-logout">Logout</a>
+                <a href="{% url 'accounts:logout' %}" class="btn-logout">Logout</a>
             </div>
     </div>
     <div class = "content-container">
+
+        <div class="feed-toggle">
+            <a href="?feed=all" class="feed-btn {% if feed_sort == 'all' %}active{% endif %}">
+                All Posts
+            </a>
+            <a href="?feed=following" class="feed-btn {% if feed_sort == 'following' %}active{% endif %}">
+                Following
+            </a>
+        </div>
         
         <div class="new-post-form">
             <h3>Create a New Post</h3>
@@ -181,8 +280,21 @@
                 {% for post in posts %}
                 <article class = "blog-post">
                     <h2 class = "post-title">{{ post.title }}</h2>
+                    
                     <div class = "post-info">
                         <span>Author: {{ post.author.username}}</span>
+                        <span>
+                            {% if post.author != user %}
+                                <a href="{% url 'blog:toggle_follow' post.author.username %}?feed={{ feed_type }}" 
+                                class="btn-follow {% if post.author.id in following_ids %}following{% endif %}">
+                                {% if post.author.id in following_ids %}
+                                    Following
+                                {% else %}
+                                    Follow
+                                {% endif %}
+                                </a>
+                            {% endif %}
+                        </span>
                         <span>
                             {{ post.date_created|date:"F d, Y" }}
                             {% if post.date_edited > post.date_created %}
@@ -198,6 +310,17 @@
                     </div>  
                 </article>
                 {% endfor %}
+            {% else %}
+            <div class="no-posts">
+                {% if feed_type == 'following' %}
+                    <h3>No posts from people you follow</h3>
+                    <p>Follow some users to see their posts here!</p>
+                    <a href="?feed=all" class="btn-follow">View All Posts</a>
+                {% else %}
+                    <h3>No posts yet</h3>
+                    <p>Be the first to create a post!</p>
+                {% endif %}
+            </div>
             {% endif %}
     </div> 
 </body>
