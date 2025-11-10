@@ -83,5 +83,10 @@ def follow_toggle(request, username):
     feed_sort = request.GET.get('feed', 'all')
     return redirect(f"/blog/?feed={feed_sort}")
 
-
+#todo
+class ProfileView(LoginRequiredMixin, ListView):
+    model = Post
+    template = 'blog/profile.html'
+    context_object_name = 'posts'
+    login_url = '/accounts/signin/' 
 
