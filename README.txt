@@ -57,6 +57,10 @@ pip install django-simple-captcha
 pip install django-otp
 pip install qrcode[pil]
 pip install python-decouple
+pip install gunicorn
+pip install dj-database-url
+pip install psycopg2-binary
+pip install whitenoise
 python.exe -m pip install --upgrade pip
 
 You can verify the Django installation:
@@ -68,6 +72,10 @@ Package descriptions:
 - django-otp: Two-factor authentication framework
 - qrcode[pil]: QR code generation with image support for 2FA setup
 - python-decouple: Environment variable management for secure configuration
+- gunicorn: Production-ready WSGI HTTP server for deployment
+- dj-database-url: Database configuration from URLs (for Heroku PostgreSQL)
+- psycopg2-binary: PostgreSQL database adapter for Python
+- whitenoise: Efficient static file serving for production
 
 (If you have a requirements.txt file, use: pip install -r requirements.txt)
 
