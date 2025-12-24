@@ -172,6 +172,10 @@ if USE_HTTPS:
     SECURE_HSTS_PRELOAD = True
 
 # Content Security Policy
+# Enable CSP by setting this to False (report-only mode is off)
+CSP_REPORT_ONLY = False
+
+# CSP Directives
 CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = ("'self'",)
 CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
