@@ -58,6 +58,23 @@
         .btn-signin:hover {
             background: #f0f0f0;
         }
+
+        .footer-links {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #333;
+        }
+
+        .footer-links a {
+            color: #333;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 14px;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -66,6 +83,14 @@
         <p>Sign up or Sign in to get started</p>
         <a href="{% url 'accounts:signup' %}" class="btn btn-signup">Sign Up</a>
         <a href="{% url 'accounts:signin' %}" class="btn btn-signin">Sign In</a>
+
+        <div class="footer-links">
+            <a href="{% url 'blog:about' %}">About</a>
+            |
+            <a href="{% url 'blog:contact' %}">Contact</a>
+            |
+            <a href="{% url 'blog:privacy_policy' %}">Privacy Policy</a>
+        </div>
     </div>
 </body>
 </html>

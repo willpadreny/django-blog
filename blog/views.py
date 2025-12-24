@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView, UpdateView, TemplateView
+from django.views.generic import ListView, UpdateView, TemplateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django import forms
 from .models import Post, Follow
+from django.core.mail import send_mail
+from django.conf import settings
 
 
 class PostForm(forms.ModelForm):
@@ -184,4 +186,60 @@ class AboutView(TemplateView):
 
 class PrivacyPolicyView(TemplateView):
     template_name = 'blog/privacy_policy.html'
+
+class ContactForm(forms.Form):
+    name = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Your Name',
+            'class': 'contact-input'
+        })
+    )
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'placeholder': 'Your Email',
+            'class': 'contact-input'
+        })
+    )
+    subject = forms.CharField(
+        max_length=200,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Subject',
+            'class': 'contact-input'
+        })
+    )
+    message = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'placeholder': 'Your Message',
+            'class': 'contact-textarea',
+            'rows': 6
+        })
+    )
+
+class ContactView(FormView):
+    template_name = 'blog/contact.html'
+    form_class = ContactForm
+    success_url = reverse_lazy('blog:contact')
+
+    def form_valid(self, form):
+        name = form.cleaned_data['name']
+        email = form.cleaned_data['email']
+        subject = form.cleaned_data['subject']
+        message = form.cleaned_data['message']
+
+        full_message = f"From: {name} <{email}>\n\n{message}"
+
+        try:
+            send_mail(
+                subject=f"[Agora Blog Contact] {subject}",
+                message=full_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=['agorablog@proton.me'],
+                fail_silently=False,
+            )
+            messages.success(self.request, 'Your message has been sent successfully!')
+        except Exception as e:
+            messages.error(self.request, 'Failed to send message. Please try again later.')
+
+        return super().form_valid(form)
 
