@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import BlogHomeView, ProfileView, MyProfileView, EditProfileView, follow_toggle
+from .views import BlogHomeView, ProfileView, MyProfileView, EditProfileView, follow_toggle, AboutView, PrivacyPolicyView
 
 app_name = 'blog'
 
@@ -9,4 +9,6 @@ urlpatterns = [
     path('edit-profile/', EditProfileView.as_view(), name='edit_profile'),
     path('profile/<str:username>/', ProfileView.as_view(), name='profile'),
     path('follow/<str:username>/', follow_toggle, name='toggle_follow'),
+    path('about/', AboutView.as_view(), name='about'),
+    path('privacy-policy/', PrivacyPolicyView.as_view(), name='privacy_policy'),
 ]

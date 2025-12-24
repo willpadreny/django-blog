@@ -79,6 +79,24 @@
             color: #333;
             font-size: 14px;
         }
+
+        .footer-links {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #333;
+        }
+
+        .footer-links a {
+            color: #333;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 14px;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -89,6 +107,11 @@
           {{ form.as_p }}
           <button type="submit" class="btn-signin">Sign In</button>
       </form>
+        <div class="footer-links">
+            <a href="{% url 'blog:about' %}">About</a>
+            |
+            <a href="{% url 'blog:privacy_policy' %}">Privacy Policy</a>
+        </div>
     </div>
 </body>
 </html>

@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView, UpdateView
+from django.views.generic import ListView, UpdateView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -178,4 +178,10 @@ class EditProfileView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         messages.success(self.request, 'Your profile has been updated successfully!')
         return super().form_valid(form)
+
+class AboutView(TemplateView):
+    template_name = 'blog/about.html'
+
+class PrivacyPolicyView(TemplateView):
+    template_name = 'blog/privacy_policy.html'
 
