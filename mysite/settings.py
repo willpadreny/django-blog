@@ -91,7 +91,8 @@ DATABASES = {
 }
 
 # Use PostgreSQL on Heroku (dj-database-url will override default if DATABASE_URL is set)
-if 'DATABASE_URL' in config('DATABASE_URL', default=''):
+database_url = config('DATABASE_URL', default=None)
+if database_url:
     DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
 
 
@@ -170,11 +171,12 @@ if USE_HTTPS:
     SECURE_HSTS_PRELOAD = True
 
 # Content Security Policy
-# CSP_DEFAULT_SRC = ("'self'",)
-# CSP_SCRIPT_SRC = ("'self'",)
-# CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
-# CSP_IMG_SRC = ("'self'", "data:")
-# CSP_FONT_SRC = ("'self'",)
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
+CSP_IMG_SRC = ("'self'", "data:")
+CSP_FONT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
 
 # Additional Security Settings
 SECURE_REFERRER_POLICY = 'same-origin'  # Controls Referer header
