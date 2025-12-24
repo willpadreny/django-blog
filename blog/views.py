@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView
+from django.views.generic import ListView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.contrib import messages
+from django.urls import reverse_lazy
 from django import forms
 from .models import Post, Follow
 
@@ -52,6 +54,11 @@ class BlogHomeView(LoginRequiredMixin, ListView):
         following_ids = Follow.objects.filter(follower = self.request.user).values_list('following_id', flat = True)
         context['following_ids'] = list(following_ids)
 
+        # Check 2FA status
+        from django_otp.plugins.otp_totp.models import TOTPDevice
+        has_2fa = TOTPDevice.objects.filter(user=self.request.user, confirmed=True).exists()
+        context['has_2fa'] = has_2fa
+
         return context
     
     # save form to DB
@@ -83,10 +90,92 @@ def follow_toggle(request, username):
     feed_sort = request.GET.get('feed', 'all')
     return redirect(f"/blog/?feed={feed_sort}")
 
-#todo
 class ProfileView(LoginRequiredMixin, ListView):
     model = Post
-    template = 'blog/profile.html'
+    template_name = 'blog/profile.html'
     context_object_name = 'posts'
-    login_url = '/accounts/signin/' 
+    login_url = '/accounts/signin/'
+
+    def get_queryset(self):
+        self.profile_user = get_object_or_404(User, username=self.kwargs.get('username'))
+        return Post.objects.filter(author=self.profile_user).order_by('-date_created')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['profile_user'] = self.profile_user
+
+        # Check if current user is following the profile user
+        is_following = Follow.objects.filter(
+            follower=self.request.user,
+            following=self.profile_user
+        ).exists()
+        context['is_following'] = is_following
+
+        return context
+
+class UserEditForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name']
+        widgets = {
+            'username': forms.TextInput(attrs={
+                'class': 'profile-input',
+                'placeholder': 'Username'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'profile-input',
+                'placeholder': 'Email'
+            }),
+            'first_name': forms.TextInput(attrs={
+                'class': 'profile-input',
+                'placeholder': 'First Name'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'profile-input',
+                'placeholder': 'Last Name'
+            })
+        }
+
+class MyProfileView(LoginRequiredMixin, ListView):
+    model = Post
+    template_name = 'blog/my_profile.html'
+    context_object_name = 'posts'
+    login_url = '/accounts/signin/'
+
+    def get_queryset(self):
+        return Post.objects.filter(author=self.request.user).order_by('-date_created')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Get followers - users who follow me
+        followers = Follow.objects.filter(following=self.request.user).select_related('follower')
+        context['followers'] = followers
+        context['followers_count'] = followers.count()
+
+        # Get following - users I follow
+        following = Follow.objects.filter(follower=self.request.user).select_related('following')
+        context['following'] = following
+        context['following_count'] = following.count()
+
+        # Check 2FA status
+        from django_otp.plugins.otp_totp.models import TOTPDevice
+        has_2fa = TOTPDevice.objects.filter(user=self.request.user, confirmed=True).exists()
+        context['has_2fa'] = has_2fa
+
+        return context
+
+class EditProfileView(LoginRequiredMixin, UpdateView):
+    model = User
+    form_class = UserEditForm
+    template_name = 'blog/edit_profile.html'
+    login_url = '/accounts/signin/'
+    success_url = reverse_lazy('blog:my_profile')
+
+    def get_object(self):
+        return self.request.user
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Your profile has been updated successfully!')
+        return super().form_valid(form)
 

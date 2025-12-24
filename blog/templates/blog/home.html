@@ -131,14 +131,12 @@
         }
 
         .btn-logout {
-            width: 100%;
-            padding: 15px 30px;
-            margin-top: 10px;
+            padding: 10px 20px;
             background: #333;
             color: white;
             border: 2px solid #333;
             font-weight: normal;
-            font-size: 16px;
+            font-size: 14px;
             cursor: pointer;
             transition: all 0.2s;
             font-family: 'Times New Roman';
@@ -253,6 +251,7 @@
     <div class = "head">  <!-- put login button, profile etc here-->
             <h1>Agora</h1>
             <div class = "user-buttons">
+                <a href="{% url 'blog:my_profile' %}" class="btn-logout">My Profile</a>
                 <a href="{% url 'accounts:logout' %}" class="btn-logout">Logout</a>
             </div>
     </div>
@@ -276,13 +275,41 @@
             </form>
         </div>
 
+        <!-- 2FA Status Section -->
+        <div style="background: white; border: 2px solid #333; box-shadow: 4px 4px 0px #333; padding: 30px; margin-bottom: 30px;">
+            <h3 style="margin: 0 0 15px 0; font-size: 20px; color: #222;">Two-Factor Authentication</h3>
+            {% if has_2fa %}
+                <p style="color: #155724; margin-bottom: 15px;">
+                    ✓ Two-factor authentication is <strong>enabled</strong>
+                </p>
+                <form method="post" action="{% url 'accounts:2fa_disable' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" onclick="return confirm('Are you sure you want to disable 2FA?')"
+                            style="padding: 10px 20px; background: #dc3545; color: white; border: 2px solid #333; cursor: pointer; font-family: 'Times New Roman'; font-size: 14px;">
+                        Disable 2FA
+                    </button>
+                </form>
+            {% else %}
+                <p style="color: #856404; margin-bottom: 15px;">
+                    Two-factor authentication is <strong>not enabled</strong>
+                </p>
+                <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+                    Add an extra layer of security to your account by enabling two-factor authentication. Compatible with Google Authenticator, Microsoft Authenticator, and Authy.
+                </p>
+                <a href="{% url 'accounts:2fa_setup' %}"
+                   style="padding: 10px 20px; background: #333; color: white; border: 2px solid #333; text-decoration: none; display: inline-block; font-family: 'Times New Roman'; font-size: 14px;">
+                    Enable 2FA
+                </a>
+            {% endif %}
+        </div>
+
             {% if posts %}
                 {% for post in posts %}
                 <article class = "blog-post">
                     <h2 class = "post-title">{{ post.title }}</h2>
                     
                     <div class = "post-info">
-                        <span>Author: {{ post.author.username}}</span>
+                        <span>Author: <a href="{% url 'blog:profile' post.author.username %}" style="color: #333; text-decoration: underline;">{{ post.author.username}}</a></span>
                         <span>
                             {% if post.author != user %}
                                 <a href="{% url 'blog:toggle_follow' post.author.username %}?feed={{ feed_type }}" 

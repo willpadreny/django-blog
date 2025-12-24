@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 from django.utils import timezone
+from decouple import config, Csv
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,12 +23,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-)y^%cmk%8&cyhj9==t&q9c^$%47#z_f0ak*#vxrc==c)^cr3qj'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
 
 
 # Application definition
@@ -39,16 +41,20 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'captcha',
+    'django_otp',
+    'django_otp.plugins.otp_totp',
     'accounts',
     'blog',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django_otp.middleware.OTPMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -82,6 +88,10 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# Use PostgreSQL on Heroku (dj-database-url will override default if DATABASE_URL is set)
+if 'DATABASE_URL' in config('DATABASE_URL', default=''):
+    DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
 
 
 # Password validation
@@ -119,6 +129,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Whitenoise configuration for serving static files on Heroku
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -127,5 +141,39 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/accounts/signin/'
 LOGIN_REDIRECT_URL = '/blog/'
-#ALLOWED_HOSTS = ['192.168.0.115']
+
+# Security Headers
+# Determine if HTTPS is being used
+USE_HTTPS = config('USE_HTTPS', default=False, cast=bool)
+
+# Session Security
 SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = USE_HTTPS  # True when using HTTPS in production
+SESSION_COOKIE_SAMESITE = 'Lax'  # Prevents CSRF attacks
+
+# CSRF Security
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SECURE = USE_HTTPS  # True when using HTTPS in production
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+# Security Headers
+SECURE_BROWSER_XSS_FILTER = True  # X-XSS-Protection header
+SECURE_CONTENT_TYPE_NOSNIFF = True  # X-Content-Type-Options: nosniff
+X_FRAME_OPTIONS = 'DENY'  # Prevents clickjacking attacks
+
+# HTTPS/SSL Settings (Automatically enabled when USE_HTTPS=True in .env)
+if USE_HTTPS:
+    SECURE_SSL_REDIRECT = True  # Redirects all HTTP to HTTPS
+    SECURE_HSTS_SECONDS = 31536000  # HTTP Strict Transport Security (1 year)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+# Content Security Policy
+# CSP_DEFAULT_SRC = ("'self'",)
+# CSP_SCRIPT_SRC = ("'self'",)
+# CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
+# CSP_IMG_SRC = ("'self'", "data:")
+# CSP_FONT_SRC = ("'self'",)
+
+# Additional Security Settings
+SECURE_REFERRER_POLICY = 'same-origin'  # Controls Referer header

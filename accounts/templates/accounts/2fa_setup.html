@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Setup Two-Factor Authentication</title>
+    <style>
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: #f5f5f0;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 50px;
+            border: 2px solid #333;
+            box-shadow: 4px 4px 0px #050404;
+            max-width: 500px;
+            width: 100%;
+        }
+        h2 {
+            color: #222;
+            margin-bottom: 20px;
+            font-weight: normal;
+            font-size: 32px;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+        .step {
+            margin-bottom: 30px;
+        }
+        .step-number {
+            background: #333;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .step-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #222;
+            margin-bottom: 10px;
+        }
+        .step-content {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-left: 40px;
+        }
+        .qr-code {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .qr-code img {
+            border: 2px solid #333;
+            padding: 10px;
+            background: white;
+            max-width: 250px;
+            width: 100%;
+            height: auto;
+        }
+        .secret-key {
+            background: #f5f5f0;
+            border: 2px solid #333;
+            padding: 15px;
+            text-align: center;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 14px;
+            word-break: break-all;
+        }
+        form input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #333;
+            font-size: 14px;
+            font-family: Georgia, 'Times New Roman', serif;
+            background: white;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+        form input[type="text"]:focus {
+            outline: none;
+            border-color: #555;
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 15px 30px;
+            background: #333;
+            color: white;
+            border: 2px solid #333;
+            font-weight: normal;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: Georgia, 'Times New Roman', serif;
+        }
+        .btn-submit:hover {
+            background: #555;
+            border-color: #555;
+        }
+        .btn-cancel {
+            width: 100%;
+            padding: 15px 30px;
+            margin-top: 10px;
+            background: white;
+            color: #333;
+            border: 2px solid #333;
+            font-weight: normal;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: Georgia, 'Times New Roman', serif;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .btn-cancel:hover {
+            background: #f0f0f0;
+        }
+        .messages {
+            margin-bottom: 20px;
+        }
+        .message {
+            padding: 15px;
+            border: 2px solid #333;
+            margin-bottom: 15px;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Setup 2FA</h2>
+
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="message {{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">1</span>
+                Install an Authenticator App
+            </div>
+            <div class="step-content">
+                Download one of these apps on your phone:
+                <ul style="margin: 10px 0;">
+                    <li>Google Authenticator</li>
+                    <li>Microsoft Authenticator</li>
+                    <li>Authy</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">2</span>
+                Scan QR Code
+            </div>
+            <div class="step-content">
+                Open your authenticator app and scan this QR code:
+                <div class="qr-code">
+                    <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
+                </div>
+                <p style="text-align: center; margin: 10px 0;">Or enter this key manually:</p>
+                <div class="secret-key">
+                    {{ secret_key }}
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">3</span>
+                Verify Setup
+            </div>
+            <div class="step-content">
+                Enter the 6-digit code from your authenticator app:
+                <form method="post" action="{% url 'accounts:2fa_verify_setup' %}">
+                    {% csrf_token %}
+                    <input type="text"
+                           name="token"
+                           placeholder="Enter 6-digit code"
+                           maxlength="6"
+                           pattern="[0-9]{6}"
+                           required
+                           autofocus
+                           autocomplete="off">
+                    <button type="submit" class="btn-submit">Verify and Enable 2FA</button>
+                </form>
+                <a href="{% url 'blog:my_profile' %}" class="btn-cancel">Cancel</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
