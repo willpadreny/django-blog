@@ -14,6 +14,7 @@ from pathlib import Path
 from django.utils import timezone
 from decouple import config, Csv
 import dj_database_url
+from csp.constants import SELF, NONE, UNSAFE_INLINE
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
