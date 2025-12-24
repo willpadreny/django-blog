@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'csp',
     'captcha',
     'django_otp',
     'django_otp.plugins.otp_totp',
@@ -176,7 +177,10 @@ CSP_SCRIPT_SRC = ("'self'",)
 CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
 CSP_IMG_SRC = ("'self'", "data:")
 CSP_FONT_SRC = ("'self'",)
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
+CSP_CONNECT_SRC = ("'self'",)
+CSP_FRAME_ANCESTORS = ("'none'",)
+CSP_BASE_URI = ("'self'",)
+CSP_FORM_ACTION = ("'self'",)
 
 # Additional Security Settings
 SECURE_REFERRER_POLICY = 'same-origin'  # Controls Referer header
