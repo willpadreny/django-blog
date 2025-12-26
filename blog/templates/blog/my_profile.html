@@ -291,9 +291,9 @@
         </div>
 
         <div class="section-tabs">
-            <button class="tab-btn active" onclick="showTab('posts')">Posts</button>
-            <button class="tab-btn" onclick="showTab('followers')">Followers</button>
-            <button class="tab-btn" onclick="showTab('following')">Following</button>
+            <button class="tab-btn active" onclick="showTab('posts', this)">Posts</button>
+            <button class="tab-btn" onclick="showTab('followers', this)">Followers</button>
+            <button class="tab-btn" onclick="showTab('following', this)">Following</button>
         </div>
 
         <!-- Posts Section -->
@@ -375,7 +375,7 @@
     </div>
 
     <script>
-        function showTab(tabName) {
+        function showTab(tabName, button) {
             // Hide all sections
             document.querySelectorAll('.section-content').forEach(section => {
                 section.classList.remove('active');
@@ -390,7 +390,7 @@
             document.getElementById(tabName + '-section').classList.add('active');
 
             // Add active class to clicked button
-            event.target.classList.add('active');
+            button.classList.add('active');
         }
     </script>
 </body>

@@ -173,11 +173,7 @@ if USE_HTTPS:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 
-# Content Security Policy
-# Enable CSP by setting this to False (report-only mode is off)
-CSP_REPORT_ONLY = False
-
-# CSP Directives
+# Content Security Policy (django-csp 4.0+ format)
 CONTENT_SECURITY_POLICY = {
     "DIRECTIVES": {
         "default-src": [SELF],

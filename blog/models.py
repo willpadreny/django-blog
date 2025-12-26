@@ -6,7 +6,7 @@ class Post(models.Model):
     content = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True)
-    date_edited = models.DateTimeField(auto_now=True)
+    date_edited = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ['-date_created']
